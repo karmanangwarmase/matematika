@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan Soal Persiapan US</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 10px;
+        }
+
+        .container {
+            text-align: center;
+            padding: 15px 0;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .container img {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: #34495e;
+        }
+
+        #timer {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e74c3c;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #2980b9;
+        }
+
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .question p {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .question label {
+            display: block;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .question label:hover {
+            background: #e9ecef;
+        }
+
+        .question input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 1.1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        #result {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        #result p {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .container img {
+                height: 50px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .question p {
+                font-size: 1rem;
+            }
+            
+            .question label {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+            
+            button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="Logo SMAS Muhammadiyah 1 Pulau Morotai">
+        <h1>SMAS Muhammadiyah 1 Pulau Morotai</h1>
+        <h2>Matematika</h2>
+    </div>
+
+    <div id="timer">Waktu Tersisa: 60:00</div>
+
+    <form id="userInfo">
+        <div class="question">
+            <input type="text" id="nama" placeholder="Masukkan Nama" required>
+            <input type="text" id="kelas" placeholder="Masukkan Kelas" required>
+            <button type="button" onclick="nextSession()">Mulai Ujian</button>
+        </div>
+    </form>
+
+    <div id="session2" style="display: none;">
+        <div class="question" id="currentQuestion"></div>
+        <div class="button-group">
+            <button type="button" onclick="prevQuestion()" style="background: #95a5a6">Kembali</button>
+            <button type="button" onclick="nextQuestion()" id="nextButton" style="background: #2ecc71">Lanjut</button>
+        </div>
+    </div>
+
+    <div id="result">
+        <h2>Hasil Pengerjaan</h2>
+        <p id="resultNama"></p>
+        <p id="resultKelas"></p>
+        <p id="resultWaktu"></p>
+        <p id="resultBenar"></p>
+        <p id="resultSalah"></p>
+        <p id="resultNilai"></p>
+        <p>Silahkan screenshot hasil Anda.</p>
+        <button type="button" onclick="startAgain()" style="background: #e67e22">Mulai Kembali (Percobaan ke-<span id="attempt">1</span>)</button>
+    </div>
+
+    <script>
+        let timeLeft = 3600;
+        let timerInterval;
+        let attempt = 1;
+        let currentQuestionIndex = 0;
+        const userAnswers = [];
+        const questions = [
+ 
+    {
+        "question": "1. Himpunan penyelesaian dari persamaan nilai mutlak |2𝑥 − 5| = −7 adalah …",
+        "options": [
+            { "label": "A. {−6, −1}", "value": "A" },
+            { "label": "B. {−1, 6}", "value": "B" },
+            { "label": "C. {−6, 1}", "value": "C" },
+            { "label": "D. {6}", "value": "D" },
+            { "label": "E. { }", "value": "E" }
+        ],
+        "answer": "E"
+    },
+    {
+        "question": "2. Nilai x yang memenuhi pertidaksamaan |2𝑥 −1| > |𝑥 + 2| adalah …",
+        "options": [
+            { "label": "A. x < −5 atau x > 1", "value": "A" },
+            { "label": "B. x < −1 atau x > 5", "value": "B" },
+            { "label": "C. x < 1 atau x > 5", "value": "C" },
+            { "label": "D. −1 < x < 5", "value": "D" },
+            { "label": "E. 1 < x < 5", "value": "E" }
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "3. Pada suatu hari Ibham, Aidil, dan Kenzy panen buah jeruk. Hasil kebun Kenzy 10 kg lebih sedikit dari hasil kebun Ibham dan 10 kg lebih banyak dari hasil kebun Aidil. Jika hasil panen ketiganya adalah 195 kg, maka hasil panen Ibham adalah …",
+        "options": [
+            { "label": "A. 55 kg", "value": "A" },
+            { "label": "B. 65 kg", "value": "B" },
+            { "label": "C. 75 kg", "value": "C" },
+            { "label": "D. 85 kg", "value": "D" },
+            { "label": "E. 95 kg", "value": "E" }
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "4. Nilai x yang memenuhi SPLTV { 𝑥 + 𝑦 +𝑧 = 2, 𝑦 +3𝑧 = 5, 4𝑧 = 8 } adalah …",
+        "options": [
+            { "label": "A. −1", "value": "A" },
+            { "label": "B. 0", "value": "B" },
+            { "label": "C. 1", "value": "C" },
+            { "label": "D. 2", "value": "D" },
+            { "label": "E. 3", "value": "E" }
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "5. Diketahui fungsi f dan g yang dirumuskan oleh f(x) = 2x + 1 dan g(x) = 2x^2 + 4x. Fungsi komposisi (f o g)(x) adalah …",
+        "options": [
+            { "label": "A. (f o g)(x) = 8x^2 + 16x + 6", "value": "A" },
+            { "label": "B. (f o g)(x) = 4x^2 + 8x + 1", "value": "B" },
+            { "label": "C. (f o g)(x) = 4x^2 + 8x + 3", "value": "C" },
+            { "label": "D. (f o g)(x) = 2x^2 + 4x + 1", "value": "D" },
+            { "label": "E. (f o g)(x) = x^2 + 2x + 1", "value": "E" }
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "6. Diketahui fungsi f(x) = (2𝑥+1)/(3−𝑥), x ≠ 3. Jika 𝑓^−1(x) merupakan invers dari f(x), maka nilai 𝑓^−1(−3) adalah …",
+        "options": [
+            { "label": "A. 0", "value": "A" },
+            { "label": "B. 2", "value": "B" },
+            { "label": "C. 4", "value": "C" },
+            { "label": "D. 6", "value": "D" },
+            { "label": "E. 10", "value": "E" }
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "7. Perhatikan relasi di bawah ini! <br><br><img src='gambar10.png'><br><br> Relasi yang bukan fungsi adalah …",
+        "options": [
+            { "label": "A. (b) dan (e)", "value": "A" },
+            { "label": "B. (b) dan (c)", "value": "B" },
+            { "label": "C. (c) dan (d)", "value": "C" },
+            { "label": "D. (c) saja", "value": "D" },
+            { "label": "E. (d) saja", "value": "E" }
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "8. Diketahui 1° = 𝜋/180° rad. Nilai dari 7𝜋/15 rad = …",
+        "options": [
+            { "label": "A. 48°", "value": "A" },
+            { "label": "B. 60°", "value": "B" },
+            { "label": "C. 75°", "value": "C" },
+            { "label": "D. 84°", "value": "D" },
+            { "label": "E. 105°", "value": "E" }
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "9. Pada sebuah segitiga siku-siku diketahui sin 𝛽 = a, maka nilai tan 𝛽 = …",
+        "options": [
+            { "label": "A. −𝑎/√(𝑎^2−1)", "value": "A" },
+            { "label": "B. −1/√(𝑎^2−1)", "value": "B" },
+            { "label": "C. 𝑎/√(𝑎^2−1)", "value": "C" },
+            { "label": "D. 𝑎/√(1− 𝑎^2)", "value": "D" },
+            { "label": "E. 1/√(1 + 𝑎^2)", "value": "E" }
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "10. Nilai dari sin 135° − cos 225° adalah …",
+        "options": [
+            { "label": "A. −1/2 √2", "value": "A" },
+            { "label": "B. 1/4 √2", "value": "B" },
+            { "label": "C. 1/2 √2", "value": "C" },
+            { "label": "D. √2", "value": "D" },
+            { "label": "E. 1/2 (√2+ √3)", "value": "E" }
+        ],
+        "answer": "C"
+    } 
+    ];
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Waktu Tersisa: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                showResult();
+            }
+        }, 1000);
+    }
+
+    function nextSession() {
+        const nama = document.getElementById('nama').value;
+        const kelas = document.getElementById('kelas').value;
+
+        if (!nama || !kelas) {
+            alert("Silahkan isi nama dan kelas terlebih dahulu.");
+            return;
+        }
+
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('session2').style.display = 'block';
+        showQuestion(currentQuestionIndex);
+    }
+
+    function showQuestion(index) {
+        const question = questions[index];
+        const questionHTML = `
+            <p>${question.question}</p>
+            ${question.options.map(opt => `
+                <label><input type="radio" name="q${index + 1}" value="${opt.value}" ${userAnswers[index] === opt.value ? 'checked' : ''}> ${opt.label}</label>
+            `).join('')}
+        `;
+        document.getElementById('currentQuestion').innerHTML = questionHTML;
+
+        // Update tombol "Lanjut" atau "Simpan"
+        if (index === questions.length - 1) {
+            document.getElementById('nextButton').textContent = 'Simpan';
+            document.getElementById('nextButton').onclick = saveAndConfirm;
+        } else {
+            document.getElementById('nextButton').textContent = 'Lanjut';
+            document.getElementById('nextButton').onclick = nextQuestion;
+        }
+    }
+
+    function nextQuestion() {
+        const selected = document.querySelector(`input[name="q${currentQuestionIndex + 1}"]:checked`);
+        if (!selected) {
+            alert("Silahkan pilih jawaban terlebih dahulu.");
+            return;
+        }
+
+        // Simpan jawaban pengguna
+        userAnswers[currentQuestionIndex] = selected.value;
+
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion(currentQuestionIndex);
+        }
+    }
+
+    function saveAndConfirm() {
+        const selected = document.querySelector(`input[name="q${currentQuestionIndex + 1}"]:checked`);
+        if (!selected) {
+            alert("Silahkan pilih jawaban terlebih dahulu.");
+            return;
+        }
+
+        // Simpan jawaban pengguna
+        userAnswers[currentQuestionIndex] = selected.value;
+
+        const confirmView = confirm("Apakah Anda yakin ingin melihat nilai Anda?");
+        if (confirmView) {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        clearInterval(timerInterval);
+        const nama = document.getElementById('nama').value;
+        const kelas = document.getElementById('kelas').value;
+        let benar = 0;
+        let salah = 0;
+
+        questions.forEach((q, index) => {
+            if (userAnswers[index] === q.answer) {
+                benar++;
+            } else {
+                salah++;
+            }
+        });
+
+        const nilai = (benar / questions.length) * 100;
+
+        // Tampilkan hasil
+        document.getElementById('session2').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('resultNama').textContent = `Nama: ${nama}`;
+        document.getElementById('resultKelas').textContent = `Kelas: ${kelas}`;
+        document.getElementById('resultWaktu').textContent = `Waktu Pengerjaan: ${formatTime(3600 - timeLeft)}`;
+        document.getElementById('resultBenar').textContent = `Benar: ${benar}`;
+        document.getElementById('resultSalah').textContent = `Salah: ${salah}`;
+        document.getElementById('resultNilai').textContent = `Nilai: ${nilai.toFixed(2)}`;
+
+        // Tampilkan sesi esai
+        document.getElementById('essaySection').style.display = 'block';
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function startAgain() {
+        attempt++;
+        document.getElementById('attempt').textContent = attempt;
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('session2').style.display = 'none';
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('essaySection').style.display = 'none';
+        timeLeft = 3600;
+        currentQuestionIndex = 0;
+        userAnswers.length = 0; // Reset jawaban pengguna
+        startTimer();
+    }
+
+    // Mulai timer saat halaman dimuat
+    startTimer();
+</script>
+</body>
+</html>
